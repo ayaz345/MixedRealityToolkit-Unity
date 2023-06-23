@@ -64,8 +64,9 @@ def main(args):
 
     print('Checking to see if there is already an outstanding merge to avoid creating duplicate requests.')
 
-    existing_pull_request = get_existing_pull_request(github_repo, args.label)
-    if existing_pull_request:
+    if existing_pull_request := get_existing_pull_request(
+        github_repo, args.label
+    ):
         print(f'Existing pull request {existing_pull_request.url} found, exiting early.')
         return
 

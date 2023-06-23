@@ -24,16 +24,13 @@ def get_all_authors(github_repo: Repository) -> str:
     # Sort alphabetically by name or login if no name is present
     authors = sorted(authors, key=lambda author: str.lower(
         author.login) if author.name is None else str.lower(author.name))
-    author_list = ""
-    for author in authors:
-        # Filter the MRTK 🤖 from the list
-        if author.login == "mrtk-bld" or "[bot]" in author.login:
-            continue
-        if author.name is None:
-            author_list += "- " + author.login + "\n"
-        else:
-            author_list += "- " + author.name + " (" + author.login + ")\n"
-    return author_list
+    return "".join(
+        f"- {author.login}" + "\n"
+        if author.name is None
+        else f"- {author.name} ({author.login}" + ")\n"
+        for author in authors
+        if author.login != "mrtk-bld" and "[bot]" not in author.login
+    )
 
 
 def main(args):
@@ -41,11 +38,10 @@ def main(args):
     github_repo = github_access.get_repo(args.repo)
     author_list = get_all_authors(github_repo)
 
-    f = open("Authors.md" if args.file_location is None else args.file_location,
-             "w", encoding="utf-8")
-    f.write((AUTHORS_PAGE_HEADER if args.file_header is None else args.file_header) +
-            "\n\n" + author_list)
-    f.close()
+    with open("Authors.md" if args.file_location is None else args.file_location,
+             "w", encoding="utf-8") as f:
+        f.write((AUTHORS_PAGE_HEADER if args.file_header is None else args.file_header) +
+                "\n\n" + author_list)
 
 
 if __name__ == '__main__':
